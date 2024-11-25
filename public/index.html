@@ -12,6 +12,14 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
         }
         button {
             padding: 15px 30px;
@@ -21,34 +29,75 @@
             color: white;
             border: none;
             border-radius: 5px;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #0056b3;
         }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
         #status {
             margin-top: 20px;
-            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div>
+    <div class="container">
+        <h2>IIS App Pool Recycler</h2>
         <button id="recycleBtn">Recycle App Pool</button>
+        <div id="loading" class="loading"></div>
         <div id="status"></div>
     </div>
     <script>
-        document.getElementById('recycleBtn').addEventListener('click', async () => {
-            const statusDiv = document.getElementById('status');
+        const recycleBtn = document.getElementById('recycleBtn');
+        const statusDiv = document.getElementById('status');
+        const loadingDiv = document.getElementById('loading');
+
+        recycleBtn.addEventListener('click', async () => {
             try {
+                // Disable button and show loading
+                recycleBtn.disabled = true;
+                loadingDiv.style.display = 'block';
+                statusDiv.textContent = 'Recycling app pool...';
+                statusDiv.style.color = 'blue';
+
                 const response = await fetch('/api/recycle-pool', {
                     method: 'POST'
                 });
                 const data = await response.json();
+
+                // Update status based on response
                 statusDiv.textContent = data.message;
                 statusDiv.style.color = data.success ? 'green' : 'red';
             } catch (error) {
                 statusDiv.textContent = 'Error occurred while recycling app pool';
                 statusDiv.style.color = 'red';
+            } finally {
+                // Re-enable button and hide loading
+                recycleBtn.disabled = false;
+                loadingDiv.style.display = 'none';
             }
         });
     </script>
