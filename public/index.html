@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIS App Pool Recycler</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <button id="recycleBtn">Recycle App Pool</button>
+        <div id="status"></div>
+    </div>
+    <script>
+        document.getElementById('recycleBtn').addEventListener('click', async () => {
+            const statusDiv = document.getElementById('status');
+            try {
+                const response = await fetch('/api/recycle-pool', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                statusDiv.textContent = data.message;
+                statusDiv.style.color = data.success ? 'green' : 'red';
+            } catch (error) {
+                statusDiv.textContent = 'Error occurred while recycling app pool';
+                statusDiv.style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>
